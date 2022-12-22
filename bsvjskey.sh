@@ -5,7 +5,7 @@
 # $ bash bsvjskey.sh 100
 
 npm_installation_check(){
-          if [[ ! -f $(command -v npm) && ! -x $(command -v npm) ]]; then
+          if [[ ! -f $(command -v npm) || ! -x $(command -v npm) ]]; then
                     echo "install npm"
                     exit 1
           fi
@@ -20,15 +20,19 @@ bsv_installation_check(){
 }
 
 bsv_js_versions_syntax(){
-	if [[ "$(npm list bsv | cut -d '@' -f 2 | awk NR==2 | cut -c -1)" == 2 ]];then
+	bsvjs_version=$(
+		npm list bsv | cut -d '@' -f 2 | awk NR==2 | cut -c -1
+	)
+	if [[ $bsvjs_version == 2 ]];then
 		bsvjs_vkey=PrivKey
 	        bsvjs_pkey=PubKey
-	elif [[ "$(npm list bsv | cut -d '@' -f 2 | awk NR==2 | cut -c -1)" == 1 ]];then
+	elif [[ $bsvjs_version == 1 ]];then
         	bsvjs_vkey=PrivateKey
 	        bsvjs_pkey=PublicKey
 	else
                 echo "cant find bsv@js version number"
-        	exit 1
+        	unset_bsvjsfnvariables
+		exit 1
 	fi
 }
 
@@ -42,7 +46,7 @@ bsv_javascript_heredoc(){
 }
 
 unset_bsvjsfnvariables(){
-	unset bsvjs_vkey bsvjs_pkey bsvjs_keys
+	unset bsvjs_vkey bsvjs_pkey bsvjs_keys bsvjs_version
 }
 
 bitcoinsvjskeygen_main(){
